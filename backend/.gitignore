@@ -1,0 +1,22 @@
+# Environments
+.env
+.env.local
+.env.*
+
+# Python Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+
+# Python Caches & Compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# IDE / System Caches
+.DS_Store
+.vscode/
+.idea/

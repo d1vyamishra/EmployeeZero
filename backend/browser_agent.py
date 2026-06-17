@@ -1,0 +1,84 @@
+import asyncio
+import re
+from playwright.async_api import async_playwright
+from modules.db import supabase  # Aapka purana database connector
+
+# Website se email nikaalne ka regular expression (Regex)
+EMAIL_REGEX = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+
+async def extract_email_from_website(browser, url):
+    """Nayi tab kholkar website se email dhoondhne ka function"""
+    try:
+        context = await browser.new_context()
+        page = await context.new_page()
+        # Timeout 15 seconds rakh rahe hain taaki agar koi site slow ho toh crash na ho
+        await page.goto(url, timeout=15000)
+        await page.wait_for_timeout(3000)
+        
+        # Pura page ka content text mein convert karenge
+        page_source = await page.content()
+        emails = re.findall(EMAIL_REGEX, page_source)
+        
+        await context.close()
+        
+        if emails:
+            # Junk extensions (jaise images ya png) ko filter out karne ke liye
+            valid_emails = [e for e in emails if not e.endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
+            return valid_emails[0] if valid_emails else None
+        return None
+    except Exception as e:
+        print(f"⚠️ Website open karne mein dikkat aayi: {url}")
+        return None
+
+async def scrape_and_save_leads():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)
+        page = await browser.new_page()
+        
+        print("🤖 Agent Google Maps se fresh data utha raha hai...")
+        search_query = "Tech Companies in Delhi"
+        await page.goto(f"https://www.google.com/maps/search/{search_query}")
+        
+        await page.wait_for_timeout(5000)
+        cards = await page.locator('//a[contains(@href, "/maps/place/")]').all()
+        
+        for index, card in enumerate(cards[:3]):
+            try:
+                name = await card.get_attribute('aria-label')
+                if name:
+                    print(f"\n🏢 Company #{index+1}: {name}")
+                    await card.click()
+                    await page.wait_for_timeout(3000)
+                    
+                    website_element = page.locator('//a[@data-item-id="authority"]')
+                    if await website_element.count() > 0:
+                        url = await website_element.get_attribute('href')
+                        print(f"🌐 Website: {url} -> Extracting Email...")
+                        
+                        # Email extract karne ka try karenge
+                        email = await extract_email_from_website(browser, url)
+                        
+                        if email:
+                            print(f"📧 Email Found: {email}")
+                            
+                            # 🚀 Supabase mein data push kar rahe hain
+                            print("💾 Saving lead to Supabase...")
+                            data, count = supabase.table("leads").insert({
+                                "company_name": name,
+                                "email_address": email,
+                                "full_name": "Tech Team",  # 🔥 Fixed: Adding default name to satisfy the NOT-NULL constraint
+                                "status": "New"  # Status 'New' rakh rahe hain taaki Railway agent ise utha sake
+                            }).execute()
+                            print("✅ Successfully Saved!")
+                        else:
+                            print("📭 Website par direct public email nahi mila.")
+                    else:
+                        print("📭 Website available nahi hai.")
+            except Exception as e:
+                print(f"⚠️ Error processing card: {e}")
+                continue
+                
+        await browser.close()
+
+if __name__ == "__main__":
+    asyncio.run(scrape_and_save_leads())
