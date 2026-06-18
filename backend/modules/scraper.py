@@ -1,4 +1,3 @@
-# Save this inside backend/modules/scraper.py
 import asyncio
 from playwright.async_api import async_playwright
 
@@ -10,29 +9,22 @@ async def scrape_company_website(url: str):
     print(f"🌐 Agent opening browser to visit: {url}...")
     
     async with async_playwright() as p:
-        # Launching a headless browser
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         
         try:
-            # Set a standard user agent to avoid basic bot blocks
             await page.set_extra_http_headers({
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             })
 
-            # Changed wait_until to 'domcontentloaded' to avoid freezing on heavy trackers/analytics scripts
             await page.goto(url, wait_until="domcontentloaded", timeout=25000)
             
-            # Extract page title
             title = await page.title()
             
-            # Extract raw inner text from the body element
             body_text = await page.evaluate("() => document.body.innerText")
-            
-            # Clean up excessive white spaces and newlines
+
             clean_text = " ".join(body_text.split())
             
-            # Limit context size to 1500 characters so we don't blow past Gemini's prompt tokens
             truncated_context = clean_text[:1500] 
             
             print(f"✅ Successfully scraped context from: '{title}'")
