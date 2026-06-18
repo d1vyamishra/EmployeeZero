@@ -30,7 +30,6 @@ def check_for_replies_and_respond():
         mail.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
         mail.select("inbox")
 
-        # Strict unread search to target fresh responses
         status, messages = mail.search(None, 'UNSEEN')
         
         if messages[0] == b'':
@@ -43,12 +42,10 @@ def check_for_replies_and_respond():
                 if isinstance(response_part, tuple):
                     msg = email.message_from_bytes(response_part[1])
                     
-                    # Parse Sender Info
                     from_text, encoding = decode_header(msg["From"])[0]
                     if isinstance(from_text, bytes):
                         from_text = from_text.decode(encoding or "utf-8")
                     
-                    # 🛡️ THE BULLETPROOF FILTER: Blocks system alerts and loops
                     ignore_keywords = [
                         "onboarding@resend.dev", "employeezero", "noreply", "donotreply",
                         "google", "reddit", "arxiv", "preprints", "instagram", "canva", 
@@ -57,12 +54,10 @@ def check_for_replies_and_respond():
                     if any(keyword in from_text.lower() for keyword in ignore_keywords):
                         continue
                     
-                    # Parse Subject Line
                     subject_text, encoding = decode_header(msg["Subject"])[0]
                     if isinstance(subject_text, bytes):
                         subject_text = subject_text.decode(encoding or "utf-8")
 
-                    # Extract Body Text
                     incoming_body = ""
                     if msg.is_multipart():
                         for part in msg.walk():
@@ -74,20 +69,17 @@ def check_for_replies_and_respond():
 
                     print(f"✉️ Found fresh reply from {from_text} (Subject: {subject_text})! Processing...")
                     
-                    # 1. Ask OpenRouter to frame the text response
                     ai_response = draft_reply_with_ai(incoming_body)
                     
                     if ai_response:
                         print(f"🤖 AI Generated Follow-up Answer:\n{ai_response}\n")
                         
-                        # 2. Live reply sent straight from your new Gmail configuration
                         reply_subject = f"Re: {subject_text}" if not subject_text.startswith("Re:") else subject_text
                         email_sent = send_autonomous_email(from_text, reply_subject, ai_response)
                         
                         if email_sent:
                             print("🚀 Reply message successfully dispatched via Gmail SMTP server!")
                         
-                        # 3. Log results to Supabase tracking index
                         try:
                             supabase.table("lead_replies").insert({
                                 "incoming_message": incoming_body,
@@ -98,7 +90,6 @@ def check_for_replies_and_respond():
                         except Exception as db_err:
                             print(f"⚠️ Could not log reply to Supabase: {db_err}")
 
-                        # Mark as read to step out of the current search loop context
                         mail.store(num, '+FLAGS', '\\Seen')
 
         mail.logout()
