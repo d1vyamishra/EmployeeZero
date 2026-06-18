@@ -3,10 +3,10 @@ import sys
 import os
 from main import run_automation
 
-# Ensure backend path is configured correctly
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Cooldown time between scans (set to 30 seconds for local live testing)
+
 CHECK_INTERVAL_SECONDS = 30 
 
 def start_infinite_worker():
@@ -18,7 +18,7 @@ def start_infinite_worker():
         try:
             print(f"🔄 [Cycle #{loop_count}] Executing automation tasks...")
             
-            # Fire the unified inbound and outbound sequence cleanly
+ 
             run_automation()
             
             print(f"😴 Cycle #{loop_count} complete. Worker sleeping for {CHECK_INTERVAL_SECONDS}s...")
