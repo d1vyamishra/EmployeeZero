@@ -22,8 +22,7 @@ async def find_linkedin_profile_simple(company_name, role="Founder"):
     found_url = None
     
     async with async_playwright() as p:
-        # 🟢 CHANGED: headless=False lets you watch the browser window operate live
-        # user_data_dir creates a temporary profile cache so it looks like a normal user session
+        
         user_data_dir = os.path.join(os.getcwd(), "playwright_browser_profile")
         
         browser_context = await p.chromium.launch_persistent_context(
@@ -45,7 +44,6 @@ async def find_linkedin_profile_simple(company_name, role="Founder"):
             try:
                 await page.goto(target_search_url, wait_until="domcontentloaded", timeout=15000)
                 
-                # Wait 3 seconds so you can visually see the results or check if a CAPTCHA appeared
                 await page.wait_for_timeout(3000)
                 
                 hrefs = await page.evaluate(
