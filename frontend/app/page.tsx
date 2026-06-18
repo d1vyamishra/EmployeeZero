@@ -71,7 +71,7 @@ export default function CompleteGlassDashboard() {
     fetchThreadLogs();
   }, [selectedLead]);
 
-  // Dynamic calculated metrics based on real database entries
+
   const totalLeadsCount = leads.length;
   const repliedLeadsCount = leads.filter(l => l.status === 'Replied').length;
   const emailedLeadsCount = leads.filter(l => l.status === 'Emailed').length;
@@ -80,11 +80,11 @@ export default function CompleteGlassDashboard() {
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100 font-sans relative overflow-hidden">
       
-      {/* GLOW BACKGROUND SPHERES */}
+ 
       <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[160px] pointer-events-none z-0" />
       <div className="absolute bottom-[-10%] right-[-5%] w-[700px] h-[700px] bg-emerald-500/15 rounded-full blur-[180px] pointer-events-none z-0" />
 
-      {/* GLOBAL APPARATUS SIDEBAR */}
+
       <aside className="w-64 bg-slate-900/40 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col justify-between z-10">
         <div>
           <div className="flex items-center space-x-3 mb-10">
@@ -123,7 +123,7 @@ export default function CompleteGlassDashboard() {
         </div>
       </aside>
 
-      {/* INTERACTIVE COMPONENT SWITCHER */}
+
       {loading ? (
         <div className="flex-1 flex items-center justify-center z-10">
           <p className="text-sm font-medium tracking-wide text-indigo-400 animate-pulse">Syncing with Supabase Cluster...</p>
@@ -131,7 +131,7 @@ export default function CompleteGlassDashboard() {
       ) : (
         <div className="flex-1 flex overflow-hidden z-10">
           
-          {/* TAB 1: SYSTEM OVERVIEW (ANALYTICS PANEL) */}
+
           {currentTab === 'overview' && (
             <section className="flex-1 p-8 overflow-y-auto space-y-8">
               <div>
@@ -139,7 +139,7 @@ export default function CompleteGlassDashboard() {
                 <p className="text-sm text-slate-400 mt-1">Real-time optimization matrix running via background loops.</p>
               </div>
 
-              {/* 4-COLUMN TOP ANALYTICS TILES */}
+
               <div className="grid grid-cols-1 md-grid-cols-4 gap-5">
                 <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl shadow-xl">
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">Total Tracked Leads</span>
@@ -159,7 +159,6 @@ export default function CompleteGlassDashboard() {
                 </div>
               </div>
 
-              {/* DATAGRID DATA VIEWER */}
               <div className="bg-white/[0.02] backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
                 <h2 className="text-lg font-bold text-white mb-4">Lead Status Matrix</h2>
                 <div className="overflow-x-auto">
@@ -196,10 +195,10 @@ export default function CompleteGlassDashboard() {
             </section>
           )}
 
-          {/* TAB 2: COMPLETE SPLIT WORKSPACE FOR CONVERSATIONS */}
+         
           {currentTab === 'leads' && (
             <div className="flex-1 flex overflow-hidden">
-              {/* FEED BAR */}
+            
               <section className="w-96 bg-slate-900/20 backdrop-blur-md border-r border-white/10 flex flex-col">
                 <div className="p-6 border-b border-white/10">
                   <h1 className="text-xl font-bold text-white">Active Pipelines</h1>
@@ -237,7 +236,6 @@ export default function CompleteGlassDashboard() {
                 </div>
               </section>
 
-              {/* CHAT/THREAD VIEWPORT */}
               <section className="flex-1 flex flex-col overflow-y-auto p-8 bg-slate-950/40 backdrop-blur-sm">
                 <div className="max-w-3xl w-full mx-auto space-y-6">
                   {selectedLead ? (
