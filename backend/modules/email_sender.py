@@ -16,16 +16,12 @@ def send_autonomous_email(to_email, subject, email_body):
         return False
 
     try:
-        # --- CLEAN & FORMAT PAYLOAD ---
-        # 1. Convert plain text line breaks into HTML breaks
         formatted_body = email_body.replace("\n", "<br />")
         
-        # 2. Cleanup any generic AI placeholders if they slip through
         placeholders = ["{Your Name}", "[Your Name]", "{My Name}", "[My Name]"]
         for placeholder in placeholders:
             formatted_body = formatted_body.replace(placeholder, "Employee Zero Team")
 
-        # 3. Apply clean, professional layout styling
         html_content = f"""
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
                     font-size: 15px; line-height: 1.6; color: #333333; max-width: 600px;">
@@ -33,9 +29,8 @@ def send_autonomous_email(to_email, subject, email_body):
         </div>
         """
 
-        # --- SETUP SMTP MESSAGE ---
         msg = MIMEMultipart("alternative")
-        msg["From"] = f"Employee Zero <{sender_email}>"  # Updated display identity!
+        msg["From"] = f"Employee Zero <{sender_email}>"  
         msg["To"] = to_email
         msg["Subject"] = subject
         
@@ -43,9 +38,8 @@ def send_autonomous_email(to_email, subject, email_body):
 
         print(f"📧 Dispatching direct Gmail SMTP email to: {to_email}...")
 
-        # --- CONNECT TO GMAIL SERVER ---
-        server = smtplib.SMTP("smtp.gmail.com", 587)  # Secure port
-        server.starttls()  # Secure connection upgrade
+        server = smtplib.SMTP("smtp.gmail.com", 587)  
+        server.starttls() 
         server.login(sender_email, app_password)
         
         server.sendmail(sender_email, to_email, msg.as_string())
