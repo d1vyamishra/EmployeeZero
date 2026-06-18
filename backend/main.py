@@ -10,17 +10,13 @@ from modules.reply_processor import check_for_replies_and_respond  # Added inbou
 async def run_automation_cycle():
     print("\n🔄 [Cycle Start] EmployeeZero: Scanning database and email channels...")
 
-    # ------------------------------------------------------------
-    # STEP 0: CHECK FOR INBOUND RESPONSES AND AUTOMATE REPLIES
-    # ------------------------------------------------------------
+
     try:
         check_for_replies_and_respond()
     except Exception as e:
         print(f"⚠️ Inbound reply check skipped or failed: {e}")
 
-    # ------------------------------------------------------------
-    # STEP 1: AUTO-FIND MISSING LINKEDIN PROFILES FOR NEW LEADS
-    # ------------------------------------------------------------
+
     missing_li_leads = supabase.table("leads")\
         .select("*")\
         .eq("status", "New")\
@@ -39,10 +35,6 @@ async def run_automation_cycle():
     else:
         print("✅ All current 'New' leads have LinkedIn URLs attached.")
 
-
-    # ------------------------------------------------------------
-    # STEP 2: PROCESS LEADS AND DEPLOY AUTONOMOUS COLD EMAILS
-    # ------------------------------------------------------------
     leads = supabase.table("leads").select("*").eq("status", "New").execute()
 
     if not leads.data:
@@ -65,15 +57,12 @@ async def run_automation_cycle():
 
         print(f"\n🧠 Brain generating custom pitch for: {name} ({company}) -> Target: {email}...")
 
-        # Extract Web Data
         scraped_context = "No website available"
         if website and str(website).strip().startswith("http"):
             try:
                 scraped_context = await scrape_company_website(website)
             except Exception as e:
                 print(f"⚠️ Scraping bypassed due to load delay: {e}")
-
-        # Cooldown guard to respect free rate-limits
         print("⏳ Cooling down model API usage state...")
         await asyncio.sleep(12) 
         
