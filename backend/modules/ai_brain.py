@@ -13,7 +13,6 @@ except ImportError:
 
 load_dotenv()
 
-# --- OPENROUTER ARCHITECTURE CONFIGURATION ---
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY"),
@@ -74,12 +73,9 @@ def process_lead_ai_logic(lead_id, lead_name, company_name, scraped_context="No 
         elif "```" in raw_content:
             raw_content = raw_content.split("```")[1].split("```")[0].strip()
             
-        # --- ROBUST CONTROL CHARACTER SCRUBBER ---
-        # Replace line breaks, raw tabs, and problematic control characters inside the JSON strings
+ 
         raw_content = re.sub(r'[\n\r\t]', ' ', raw_content)
-        
-        # Resolve common unescaped nested double quotes in LLM generations
-        raw_content = re.sub(r'(?<!\\)"', r'"', raw_content) 
+                raw_content = re.sub(r'(?<!\\)"', r'"', raw_content) 
 
         ai_data = json.loads(raw_content)
 
